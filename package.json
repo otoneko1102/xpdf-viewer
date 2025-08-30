@@ -1,0 +1,29 @@
+{
+  "name": "xpdf-viewer",
+  "version": "1.0.0",
+  "description": "A simple, embeddable PDF viewer that works on both PC and mobile, powered by PDF.js.",
+  "main": "pdf.js",
+  "scripts": {
+    "publish": "node ./dev/replace.js && npm publish",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/otoneko1102/xpdf-viewer.git"
+  },
+  "keywords": [
+    "pdf",
+    "pdf-viewer",
+    "html",
+    "cdn"
+  ],
+  "author": "otoneko.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/otoneko1102/xpdf-viewer/issues"
+  },
+  "homepage": "https://github.com/otoneko1102/xpdf-viewer#readme",
+  "devDependencies": {
+    "fs-extra": "^11.3.1"
+  }
+}
