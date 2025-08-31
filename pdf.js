@@ -13,7 +13,7 @@
       .pdf-viewer-container {
         display: flex;
         flex-direction: column;
-        border: 1px solid #ccc;
+        border: 1px solid #cccccc;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
         font-family: sans-serif;
         background-color: #f0f0f0;
@@ -54,7 +54,7 @@
         align-items: center;
         background-color: rgba(255, 255, 255, 0.9);
         font-size: 1.5em;
-        color: #333;
+        color: #333333;
         z-index: 10;
       }
       .pdf-viewer-canvas-wrapper {
@@ -79,7 +79,7 @@
         justify-content: center;
         align-items: center;
         padding: 8px;
-        background-color: #333;
+        background-color: #333333;
         color: white;
         user-select: none;
         position: relative;
@@ -94,8 +94,8 @@
         align-items: center;
         font-size: 18px;
         font-weight: bold;
-        border: 1px solid #555;
-        background-color: #444;
+        border: 1px solid #555555;
+        background-color: #444444;
         color: white;
         cursor: pointer;
         border-radius: 4px;
@@ -111,11 +111,11 @@
         fill: white;
       }
       .pdf-viewer-navigation button:hover {
-        background-color: #555;
+        background-color: #555555;
       }
       .pdf-viewer-navigation button:disabled {
-        background-color: #222;
-        color: #666;
+        background-color: #222222;
+        color: #666666;
         cursor: not-allowed;
       }
       .pdf-viewer-page-info {

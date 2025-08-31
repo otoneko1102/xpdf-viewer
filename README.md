@@ -20,7 +20,7 @@ A simple, embeddable PDF viewer that works on both PC and mobile, powered by PDF
     Use current version:
 
     ```html
-    <script src="https://unpkg.com/xpdf-viewer@2.0.1-dev.0/pdf.js" defer></script>
+    <script src="https://unpkg.com/xpdf-viewer@2.0.1/pdf.js" defer></script>
     ```
 
     Use latest version:
