@@ -13,7 +13,7 @@
       .pdf-viewer-container {
         display: flex;
         flex-direction: column;
-        border: 1px solid #ccc;
+        border: 1px solid #cccccc;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
         font-family: sans-serif;
         background-color: #f0f0f0;
@@ -23,6 +23,25 @@
       .pdf-viewer-container.fullscreen-active {
         border: none;
         box-shadow: none;
+      }
+      .pdf-viewer-container.pseudo-fullscreen {
+        position: fixed;
+        border: none;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        z-index: 10000;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .pdf-viewer-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 9999;
       }
       .pdf-viewer-loading {
         position: absolute;
@@ -35,7 +54,7 @@
         align-items: center;
         background-color: rgba(255, 255, 255, 0.9);
         font-size: 1.5em;
-        color: #333;
+        color: #333333;
         z-index: 10;
       }
       .pdf-viewer-canvas-wrapper {
@@ -60,7 +79,7 @@
         justify-content: center;
         align-items: center;
         padding: 8px;
-        background-color: #333;
+        background-color: #333333;
         color: white;
         user-select: none;
         position: relative;
@@ -75,8 +94,8 @@
         align-items: center;
         font-size: 18px;
         font-weight: bold;
-        border: 1px solid #555;
-        background-color: #444;
+        border: 1px solid #555555;
+        background-color: #444444;
         color: white;
         cursor: pointer;
         border-radius: 4px;
@@ -92,11 +111,11 @@
         fill: white;
       }
       .pdf-viewer-navigation button:hover {
-        background-color: #555;
+        background-color: #555555;
       }
       .pdf-viewer-navigation button:disabled {
-        background-color: #222;
-        color: #666;
+        background-color: #222222;
+        color: #666666;
         cursor: not-allowed;
       }
       .pdf-viewer-page-info {
@@ -128,6 +147,9 @@
 
     const container = document.createElement("div");
     container.className = embedElement.className + " pdf-viewer-container";
+
+    const overlay = document.createElement("div");
+    overlay.className = "pdf-viewer-overlay";
 
     const loadingIndicator = document.createElement("div");
     loadingIndicator.className = "pdf-viewer-loading";
@@ -167,14 +189,16 @@
     nav.append(prevButton, pageInfo, nextButton, fullscreenButton);
 
     container.append(loadingIndicator, canvasWrapper, nav);
+    document.body.appendChild(overlay);
     embedElement.parentNode.replaceChild(container, embedElement);
 
     let pdfDoc = null;
     let currentPage = 1;
     let isRendering = false;
+    let initialPdfSize = "";
 
     const renderPage = async (num) => {
-      if (isRendering) return;
+      if (isRendering || !pdfDoc) return;
       isRendering = true;
 
       prevButton.disabled = true;
@@ -209,10 +233,8 @@
 
       currentPage = num;
       pageNumSpan.textContent = currentPage;
-
       prevButton.disabled = currentPage <= 1;
       nextButton.disabled = currentPage >= pdfDoc.numPages;
-
       isRendering = false;
     };
 
@@ -223,14 +245,14 @@
       const viewport = firstPage.getViewport({ scale: 1.0 });
       const pdfAspectRatio = viewport.width / viewport.height;
 
-      const userSize = embedElement.dataset.pdfSize || "90vw";
+      initialPdfSize = embedElement.dataset.pdfSize || "90vw";
 
       container.style.aspectRatio = pdfAspectRatio;
-      if (userSize.endsWith("vh")) {
-        container.style.height = userSize;
+      if (initialPdfSize.endsWith("vh")) {
+        container.style.height = initialPdfSize;
         container.style.width = "auto";
       } else {
-        container.style.width = userSize;
+        container.style.width = initialPdfSize;
         container.style.height = "auto";
       }
 
@@ -255,10 +277,63 @@
     nextButton.addEventListener("click", goToNextPage);
 
     fullscreenButton.addEventListener("click", () => {
-      if (!document.fullscreenElement) {
-        container.requestFullscreen();
+      const isApiSupported =
+        container.requestFullscreen || container.webkitRequestFullscreen;
+
+      if (isApiSupported && !/iPhone/.test(navigator.userAgent)) {
+        if (!document.fullscreenElement) {
+          container.requestFullscreen();
+        } else {
+          document.exitFullscreen();
+        }
       } else {
-        document.exitFullscreen();
+        const isPseudoFullscreen =
+          container.classList.contains("pseudo-fullscreen");
+        if (!isPseudoFullscreen) {
+          overlay.style.display = "block";
+          container.classList.add("pseudo-fullscreen");
+
+          const targetWidth = window.innerWidth * 0.95;
+          const targetHeight = window.innerHeight * 0.95;
+          const pdfAspectRatio = pdfDoc
+            ? pdfDoc
+                .getPage(1)
+                .then(
+                  (p) =>
+                    p.getViewport({ scale: 1 }).width /
+                    p.getViewport({ scale: 1 }).height
+                )
+            : 1;
+
+          Promise.resolve(pdfAspectRatio).then((ratio) => {
+            const screenAspectRatio = targetWidth / targetHeight;
+            if (ratio > screenAspectRatio) {
+              container.style.width = `${targetWidth}px`;
+              container.style.height = `${targetWidth / ratio}px`;
+            } else {
+              container.style.height = `${targetHeight}px`;
+              container.style.width = `${targetHeight * ratio}px`;
+            }
+            window.dispatchEvent(new Event("resize"));
+          });
+
+          fullscreenButton.innerHTML = fullscreenExitIcon;
+        } else {
+          overlay.style.display = "none";
+          container.classList.remove("pseudo-fullscreen");
+
+          container.style.width = "";
+          container.style.height = "";
+
+          if (initialPdfSize.endsWith("vh")) {
+            container.style.height = initialPdfSize;
+          } else {
+            container.style.width = initialPdfSize;
+          }
+
+          fullscreenButton.innerHTML = fullscreenEnterIcon;
+          window.dispatchEvent(new Event("resize"));
+        }
       }
     });
 
