@@ -4,7 +4,7 @@
   "description": "A simple, embeddable PDF viewer that works on both PC and mobile, powered by PDF.js.",
   "main": "pdf.js",
   "scripts": {
-    "publish": "node ./dev/replace.js",
+    "prepare": "node ./dev/replace.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
