@@ -1,10 +1,9 @@
 (function () {
   "use strict";
 
-  const PDFJS_URL =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js";
-  const PDFJS_WORKER_URL =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js";
+  const PDFJS_VERSION = "2.10.377";
+  const PDFJS_URL = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.min.js`;
+  const PDFJS_WORKER_URL = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.js`;
 
   function injectStyles() {
     if (document.getElementById("pdf-viewer-styles")) return;
@@ -20,6 +19,10 @@
         background-color: #f0f0f0;
         overflow: hidden;
         position: relative;
+      }
+      .pdf-viewer-container.fullscreen-active {
+        border: none;
+        box-shadow: none;
       }
       .pdf-viewer-loading {
         position: absolute;
@@ -60,11 +63,17 @@
         background-color: #333;
         color: white;
         user-select: none;
+        position: relative;
       }
       .pdf-viewer-navigation button {
-        margin: 0 15px;
-        padding: 4px 20px;
-        font-size: 20px;
+        width: 38px;
+        height: 38px;
+        margin: 0 10px;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
         font-weight: bold;
         border: 1px solid #555;
         background-color: #444;
@@ -72,6 +81,15 @@
         cursor: pointer;
         border-radius: 4px;
         transition: background-color 0.2s;
+      }
+      .pdf-viewer-fullscreen-btn {
+        position: absolute;
+        right: 10px;
+      }
+      .pdf-viewer-fullscreen-btn svg {
+        width: 20px;
+        height: 20px;
+        fill: white;
       }
       .pdf-viewer-navigation button:hover {
         background-color: #555;
@@ -99,8 +117,7 @@
           PDFJS_WORKER_URL;
         resolve();
       };
-      script.onerror = (e) =>
-        reject(new Error("Failed to load.", e));
+      script.onerror = (e) => reject(new Error("Failed to load.", e));
       document.head.appendChild(script);
     });
   }
@@ -141,7 +158,13 @@
     pageInfo.append(pageNumSpan, " / ", pageCountSpan);
     const nextButton = document.createElement("button");
     nextButton.textContent = ">";
-    nav.append(prevButton, pageInfo, nextButton);
+
+    const fullscreenButton = document.createElement("button");
+    fullscreenButton.className = "pdf-viewer-fullscreen-btn";
+    const fullscreenEnterIcon = `<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>`;
+    const fullscreenExitIcon = `<svg viewBox="0 0 24 24"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>`;
+    fullscreenButton.innerHTML = fullscreenEnterIcon;
+    nav.append(prevButton, pageInfo, nextButton, fullscreenButton);
 
     container.append(loadingIndicator, canvasWrapper, nav);
     embedElement.parentNode.replaceChild(container, embedElement);
@@ -181,6 +204,9 @@
       currentCanvas.style.zIndex = 0;
       [currentCanvas, nextCanvas] = [nextCanvas, currentCanvas];
 
+      const oldContext = nextCanvas.getContext("2d");
+      oldContext.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+
       currentPage = num;
       pageNumSpan.textContent = currentPage;
 
@@ -196,9 +222,9 @@
       const firstPage = await pdfDoc.getPage(1);
       const viewport = firstPage.getViewport({ scale: 1.0 });
       const pdfAspectRatio = viewport.width / viewport.height;
-      const userSize =
-        getComputedStyle(container).getPropertyValue("--xpdf-size").trim() ||
-        "90vw";
+
+      const userSize = embedElement.dataset.pdfSize || "90vw";
+
       container.style.aspectRatio = pdfAspectRatio;
       if (userSize.endsWith("vh")) {
         container.style.height = userSize;
@@ -213,7 +239,7 @@
 
       loadingIndicator.style.display = "none";
     } catch (error) {
-      console.error(`${pdfPath} の読込失敗`, error);
+      console.error(`Failed to load ${pdfPath}`, error);
       loadingIndicator.style.display = "none";
       container.textContent = "Failed to load.";
     }
@@ -227,6 +253,24 @@
 
     prevButton.addEventListener("click", goToPrevPage);
     nextButton.addEventListener("click", goToNextPage);
+
+    fullscreenButton.addEventListener("click", () => {
+      if (!document.fullscreenElement) {
+        container.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      if (document.fullscreenElement === container) {
+        container.classList.add("fullscreen-active");
+        fullscreenButton.innerHTML = fullscreenExitIcon;
+      } else {
+        container.classList.remove("fullscreen-active");
+        fullscreenButton.innerHTML = fullscreenEnterIcon;
+      }
+    });
 
     let resizeTimer;
     window.addEventListener("resize", () => {
