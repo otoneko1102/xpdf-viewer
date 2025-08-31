@@ -1,37 +1,55 @@
-# xpdf-viewer
+# %name%
 
 A simple, embeddable PDF viewer that works on both PC and mobile, powered by PDF.js.
 
-## Installation & Usage
+## Features
 
-No installation is required. Just load the script from a CDN like unpkg.
+-   **Easy to Embed**: Just one line of HTML and one script tag.
+-   **Responsive**: Automatically adjusts to the PDF's aspect ratio.
+-   **Multiple Controls**: Navigate with buttons, mouse wheel, and touch swipes.
+-   **Fullscreen Mode**: View documents without distractions.
+-   **Customizable Size**: Easily set the viewer size directly in your HTML.
+-   **High-Res Display**: Renders crisply on high-DPI (Retina) screens.
 
-1.  **Load the script**
+## Usage
 
-Add the following script tag to the bottom of your `<body>`.
+1.  **Load the Script**
 
-```html
-<script src="https://unpkg.com/xpdf-viewer@%version%/pdf.js" defer></script>
-```
+    Add the following script tag to the bottom of your `<body>`.
 
-2.  **Embed the viewer**
+    Use current version:
 
-Place an `<embed>` tag where you want the viewer to appear. Use the `xpdf` class and a `data-pdf` attribute to specify the path to your PDF file.
+    ```html
+    <script src="https://unpkg.com/%name%@%version%/pdf.js" defer></script>
+    ```
 
-```html
-<embed class="xpdf" data-pdf="./path/to/your/document.pdf">
-```
+    Use latest version:
 
-3.  **Customize the size (Optional)**
+    ```html
+    <script src="https://unpkg.com/%name%/pdf.js" defer></script>
+    ```
 
-You can control the size of the viewer using the `--xpdf-size` CSS custom property.
-- `vw` (viewport width) makes the viewer's width the primary dimension.
-- `vh` (viewport height) makes the viewer's height the primary dimension.
+2.  **Embed the Viewer**
 
-```css
-.xpdf {
-  /* Set the viewer width to 90% of the screen width */
-  --xpdf-size: 90vw;
-  margin: 20px auto; /* Center the viewer */
-}
-```
+    Place an `<embed>` tag where you want the viewer to appear.
+
+    -   Use the `xpdf` class.
+    -   Use `data-pdf` to specify the path to your PDF file.
+    -   Use `data-pdf-size` (optional) to set the viewer's size. The default is `90vw`.
+
+    **Basic Example (Default size: 90% of screen width):**
+
+    ```html
+    <embed class="xpdf" data-pdf="./path/to/your/document.pdf" />
+    ```
+
+    **Custom Size Example (80% of screen height):**
+
+    ```html
+    <embed class="xpdf" data-pdf="./another.pdf" data-pdf-size="80vh" />
+    ```
+
+    The `data-pdf-size` attribute accepts any valid CSS size unit:
+    -   `vw` (viewport width) makes the viewer's width the primary dimension.
+    -   `vh` (viewport height) makes the viewer's height the primary dimension.
+    -   You can also use `%` or `px`.
