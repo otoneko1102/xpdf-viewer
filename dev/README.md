@@ -11,6 +11,8 @@ A simple, embeddable PDF viewer that works on both PC and mobile, powered by PDF
 -   **Customizable Size**: Easily set the viewer size directly in your HTML.
 -   **High-Res Display**: Renders crisply on high-DPI (Retina) screens.
 
+***
+
 ## Usage
 
 1.  **Load the Script**
@@ -53,3 +55,25 @@ A simple, embeddable PDF viewer that works on both PC and mobile, powered by PDF
     -   `vw` (viewport width) makes the viewer's width the primary dimension.
     -   `vh` (viewport height) makes the viewer's height the primary dimension.
     -   You can also use `%` or `px`.
+
+***
+
+## Advanced Usage for SPAs (v3.0.0+)
+
+Since SPAs (Single-Page Applications) load content dynamically, you need to manually initialize the viewer after your PDF `<embed>` tags are added to the page. Version 3.0.0 and later exposes a global function for this purpose.
+
+Simply call **`window.initializeXpdfViewers()`** after rendering your dynamic content. The script will find any new, uninitialized viewers on the page and activate them.
+
+**Example:**
+
+```javascript
+// Your SPA's rendering logic
+function renderArticle(content) {
+  const contentArea = document.getElementById("content-area");
+  contentArea.innerHTML = content; // New content with <embed> tags is added here
+
+  // Manually initialize any new PDF viewers
+  if (window.initializeXpdfViewers) {
+    window.initializeXpdfViewers();
+  }
+}
