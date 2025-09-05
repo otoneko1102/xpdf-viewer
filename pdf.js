@@ -142,6 +142,9 @@
   }
 
   async function createViewer(embedElement) {
+    if (embedElement.dataset.xpdfInitialized) return;
+    embedElement.dataset.xpdfInitialized = "true";
+
     const pdfPath = embedElement.dataset.pdf;
     if (!pdfPath) return;
 
@@ -394,10 +397,13 @@
     );
   }
 
-  document.addEventListener("DOMContentLoaded", async () => {
+  window.initializeXpdfViewers = async function () {
     injectStyles();
-    const targets = document.querySelectorAll("embed.xpdf[data-pdf]");
+    const targets = document.querySelectorAll(
+      "embed.xpdf[data-pdf]:not([data-xpdf-initialized])"
+    );
     if (targets.length === 0) return;
+
     try {
       await loadPdfJs();
     } catch (error) {
@@ -405,5 +411,7 @@
       return;
     }
     targets.forEach(createViewer);
-  });
+  };
+
+  document.addEventListener("DOMContentLoaded", window.initializeXpdfViewers);
 })();
