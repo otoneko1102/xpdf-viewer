@@ -26,18 +26,17 @@
       }
       .xpdf-container.xpdf-pseudo-fullscreen {
         position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        z-index: 10001 !important;
+        max-width: calc(100vw - 20px) !important;
+        max-height: calc(100vh - 20px) !important;
+        width: auto !important;
+        height: auto !important;
+        margin: 0 !important;
         border: none !important;
         box-shadow: 0 0 20px rgba(0,0,0,0.5) !important;
-        z-index: 10001 !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        transform: none !important;
-        margin: 0 !important;
-        max-width: none !important;
-        max-height: none !important;
-        background-color: #f0f0f0 !important;
       }
       .xpdf-overlay {
         display: none;
@@ -218,10 +217,8 @@
       const page = await pdfDoc.getPage(num);
       const dpi = Math.min(window.devicePixelRatio || 1, 2);
       const pageViewport = page.getViewport({ scale: 1.0 });
-
       const availableWidth = canvasWrapper.clientWidth;
       const availableHeight = canvasWrapper.clientHeight;
-
       const baseScale = Math.min(
         availableWidth / pageViewport.width,
         availableHeight / pageViewport.height
