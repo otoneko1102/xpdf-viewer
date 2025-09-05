@@ -20,33 +20,23 @@
         overflow: hidden;
         position: relative;
       }
-      .xpdf-container.xpdf-fullscreen-active {
-        border: none;
-        box-shadow: none;
-      }
-      .xpdf-container.xpdf-pseudo-fullscreen {
-        position: fixed !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        z-index: 10001 !important;
-        max-width: calc(100vw - 20px) !important;
-        max-height: calc(100vh - 20px) !important;
-        width: auto !important;
-        height: auto !important;
-        margin: 0 !important;
-        border: none !important;
-        box-shadow: 0 0 20px rgba(0,0,0,0.5) !important;
-      }
       .xpdf-overlay {
         display: none;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        background-color: rgba(0, 0, 0, 0.8) !important;
-        z-index: 9999 !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+      }
+      .xpdf-container.xpdf-pseudo-fullscreen {
+        max-width: calc(100vw - 20px);
+        max-height: calc(100vh - 20px);
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        border: none;
       }
       .xpdf-loading {
         position: absolute;
@@ -160,6 +150,9 @@
     const container = document.createElement("div");
     container.className = embedElement.className + " xpdf-container";
 
+    const originalParent = embedElement.parentNode;
+    const originalNextSibling = embedElement.nextSibling;
+
     const overlay = document.createElement("div");
     overlay.className = "xpdf-overlay";
 
@@ -207,7 +200,6 @@
     let pdfDoc = null;
     let currentPage = 1;
     let isRendering = false;
-    let initialPdfSize = "";
 
     const renderPage = async (num) => {
       if (isRendering || !pdfDoc) return;
@@ -249,8 +241,8 @@
       const firstPage = await pdfDoc.getPage(1);
       const viewport = firstPage.getViewport({ scale: 1.0 });
       const pdfAspectRatio = viewport.width / viewport.height;
-      initialPdfSize = embedElement.dataset.pdfSize || "90vw";
       container.style.aspectRatio = pdfAspectRatio;
+      const initialPdfSize = embedElement.dataset.pdfSize || "90vw";
       if (initialPdfSize.endsWith("vh")) {
         container.style.height = initialPdfSize;
         container.style.width = "auto";
@@ -284,15 +276,15 @@
         /iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
       if (isIPhone || !isApiSupported) {
-        const isPseudoFullscreen = container.classList.contains(
-          "xpdf-pseudo-fullscreen"
-        );
+        const isPseudoFullscreen = overlay.style.display === "flex";
         if (!isPseudoFullscreen) {
-          overlay.style.display = "block";
+          overlay.style.display = "flex";
+          overlay.appendChild(container);
           container.classList.add("xpdf-pseudo-fullscreen");
           fullscreenButton.innerHTML = fullscreenExitIcon;
           window.dispatchEvent(new Event("resize"));
         } else {
+          originalParent.insertBefore(container, originalNextSibling);
           overlay.style.display = "none";
           container.classList.remove("xpdf-pseudo-fullscreen");
           fullscreenButton.innerHTML = fullscreenEnterIcon;
