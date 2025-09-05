@@ -10,20 +10,128 @@
     const style = document.createElement("style");
     style.id = "xpdf-styles";
     style.innerHTML = `
-      .xpdf-container { display: flex; flex-direction: column; border: 1px solid #cccccc; box-shadow: 0 0 10px rgba(0,0,0,0.1); font-family: sans-serif; background-color: #f0f0f0; overflow: hidden; position: relative; }
-      .xpdf-container.xpdf-fullscreen-active { border: none; box-shadow: none; }
-      .xpdf-container.xpdf-pseudo-fullscreen { position: fixed; border: none; box-shadow: 0 0 20px rgba(0,0,0,0.5); z-index: 10000; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-      .xpdf-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); z-index: 9999; }
-      .xpdf-loading { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background-color: rgba(255, 255, 255, 0.9); font-size: 1.5em; color: #333333; z-index: 10; }
-      .xpdf-canvas-wrapper { flex-grow: 1; display: flex; justify-content: center; align-items: center; width: 100%; overflow: hidden; position: relative; }
-      .xpdf-canvas { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-      .xpdf-navigation { width: 100%; flex-shrink: 0; display: flex; justify-content: center; align-items: center; padding: 8px; background-color: #333333; color: white; user-select: none; position: relative; }
-      .xpdf-navigation button { width: 38px; height: 38px; margin: 0 10px; padding: 0; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; border: 1px solid #555555; background-color: #444444; color: white; cursor: pointer; border-radius: 4px; transition: background-color 0.2s; }
-      .xpdf-fullscreen-btn { position: absolute; right: 10px; }
-      .xpdf-fullscreen-btn svg { width: 20px; height: 20px; fill: white; }
-      .xpdf-navigation button:hover { background-color: #555555; }
-      .xpdf-navigation button:disabled { background-color: #222222; color: #666666; cursor: not-allowed; }
-      .xpdf-page-info { margin: 0 15px; font-size: 16px; }
+      .xpdf-container {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #cccccc;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        font-family: sans-serif;
+        background-color: #f0f0f0;
+        overflow: hidden;
+        position: relative;
+      }
+      .xpdf-container.xpdf-fullscreen-active {
+        border: none;
+        box-shadow: none;
+      }
+      .xpdf-container.xpdf-pseudo-fullscreen {
+        position: fixed !important;
+        border: none !important;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5) !important;
+        z-index: 10001 !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        transform: none !important;
+        margin: 0 !important;
+        max-width: none !important;
+        max-height: none !important;
+        background-color: #f0f0f0 !important;
+      }
+      .xpdf-overlay {
+        display: none;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: rgba(0, 0, 0, 0.8) !important;
+        z-index: 9999 !important;
+      }
+      .xpdf-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.9);
+        font-size: 1.5em;
+        color: #333333;
+        z-index: 10;
+      }
+      .xpdf-canvas-wrapper {
+        flex-grow: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+      }
+      .xpdf-canvas {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        max-width: 100%;
+        max-height: 100%;
+      }
+      .xpdf-navigation {
+        width: 100%;
+        flex-shrink: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 8px;
+        background-color: #333333;
+        color: white;
+        user-select: none;
+        position: relative;
+        z-index: 10;
+      }
+      .xpdf-navigation button {
+        width: 38px;
+        height: 38px;
+        margin: 0 10px;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+        font-weight: bold;
+        border: 1px solid #555555;
+        background-color: #444444;
+        color: white;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+      }
+      .xpdf-fullscreen-btn {
+        position: absolute;
+        right: 10px;
+      }
+      .xpdf-fullscreen-btn svg {
+        width: 20px;
+        height: 20px;
+        fill: white;
+      }
+      .xpdf-navigation button:hover {
+        background-color: #555555;
+      }
+      .xpdf-navigation button:disabled {
+        background-color: #222222;
+        color: #666666;
+        cursor: not-allowed;
+      }
+      .xpdf-page-info {
+        margin: 0 15px;
+        font-size: 16px;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -110,8 +218,10 @@
       const page = await pdfDoc.getPage(num);
       const dpi = Math.min(window.devicePixelRatio || 1, 2);
       const pageViewport = page.getViewport({ scale: 1.0 });
+
       const availableWidth = canvasWrapper.clientWidth;
       const availableHeight = canvasWrapper.clientHeight;
+
       const baseScale = Math.min(
         availableWidth / pageViewport.width,
         availableHeight / pageViewport.height
@@ -173,7 +283,6 @@
     fullscreenButton.addEventListener("click", () => {
       const isApiSupported =
         container.requestFullscreen || container.webkitRequestFullscreen;
-
       const isIPhone =
         /iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
@@ -184,39 +293,11 @@
         if (!isPseudoFullscreen) {
           overlay.style.display = "block";
           container.classList.add("xpdf-pseudo-fullscreen");
-          const targetWidth = window.innerWidth * 0.95;
-          const targetHeight = window.innerHeight * 0.95;
-          const pdfAspectRatio = pdfDoc
-            ? pdfDoc
-                .getPage(1)
-                .then(
-                  (p) =>
-                    p.getViewport({ scale: 1 }).width /
-                    p.getViewport({ scale: 1 }).height
-                )
-            : 1;
-          Promise.resolve(pdfAspectRatio).then((ratio) => {
-            const screenAspectRatio = targetWidth / targetHeight;
-            if (ratio > screenAspectRatio) {
-              container.style.width = `${targetWidth}px`;
-              container.style.height = `${targetWidth / ratio}px`;
-            } else {
-              container.style.height = `${targetHeight}px`;
-              container.style.width = `${targetHeight * ratio}px`;
-            }
-            window.dispatchEvent(new Event("resize"));
-          });
           fullscreenButton.innerHTML = fullscreenExitIcon;
+          window.dispatchEvent(new Event("resize"));
         } else {
           overlay.style.display = "none";
           container.classList.remove("xpdf-pseudo-fullscreen");
-          container.style.width = "";
-          container.style.height = "";
-          if (initialPdfSize.endsWith("vh")) {
-            container.style.height = initialPdfSize;
-          } else {
-            container.style.width = initialPdfSize;
-          }
           fullscreenButton.innerHTML = fullscreenEnterIcon;
           window.dispatchEvent(new Event("resize"));
         }
@@ -272,6 +353,7 @@
       },
       { passive: true }
     );
+
     canvasWrapper.addEventListener("touchend", (e) => {
       const touchEndX = e.changedTouches[0].screenX;
       const touchEndY = e.changedTouches[0].screenY;
