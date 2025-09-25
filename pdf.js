@@ -194,7 +194,9 @@
     nav.append(prevButton, pageInfo, nextButton, fullscreenButton);
 
     container.append(loadingIndicator, canvasWrapper, nav);
-    document.body.appendChild(overlay);
+    if (!document.getElementsByClassName("xpdf-overlay")[0]) {
+      document.body.appendChild(overlay);
+    }
     embedElement.parentNode.replaceChild(container, embedElement);
 
     let pdfDoc = null;

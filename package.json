@@ -1,10 +1,10 @@
 {
   "name": "xpdf-viewer",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "description": "A simple, embeddable PDF viewer that works on both PC and mobile, powered by PDF.js.",
   "main": "pdf.js",
   "scripts": {
-    "prepare": "node ./dev/replace.js",
+    "prepublish": "node ./dev/replace.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
