@@ -277,6 +277,12 @@
       const isIPhone =
         /iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
+      const triggerResizeWithDelay = () => {
+        setTimeout(() => {
+          window.dispatchEvent(new Event("resize"));
+        }, 100);
+      };
+
       if (isIPhone || !isApiSupported) {
         const isPseudoFullscreen = overlay.style.display === "flex";
         if (!isPseudoFullscreen) {
@@ -284,13 +290,22 @@
           overlay.appendChild(container);
           container.classList.add("xpdf-pseudo-fullscreen");
           fullscreenButton.innerHTML = fullscreenExitIcon;
-          window.dispatchEvent(new Event("resize"));
+          // window.dispatchEvent(new Event("resize"));
+          triggerResizeWithDelay();
         } else {
-          originalParent.insertBefore(container, originalNextSibling);
+          if (originalParent && document.body.contains(originalParent)) {
+            originalParent.insertBefore(container, originalNextSibling);
+          } else {
+            if (container.parentNode === overlay) {
+              overlay.removeChild(container);
+            }
+            console.warn("xpdf-viewer: Original parent node removed.");
+          }
           overlay.style.display = "none";
           container.classList.remove("xpdf-pseudo-fullscreen");
           fullscreenButton.innerHTML = fullscreenEnterIcon;
-          window.dispatchEvent(new Event("resize"));
+          // window.dispatchEvent(new Event("resize"));
+          triggerResizeWithDelay();
         }
       } else {
         const isCurrentlyFullscreen =
