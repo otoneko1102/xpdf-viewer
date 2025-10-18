@@ -153,8 +153,12 @@
     const originalParent = embedElement.parentNode;
     const originalNextSibling = embedElement.nextSibling;
 
-    const overlay = document.createElement("div");
-    overlay.className = "xpdf-overlay";
+    let overlay = document.querySelector(".xpdf-overlay");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.className = "xpdf-overlay";
+      document.body.appendChild(overlay);
+    }
 
     const loadingIndicator = document.createElement("div");
     loadingIndicator.className = "xpdf-loading";
@@ -194,9 +198,6 @@
     nav.append(prevButton, pageInfo, nextButton, fullscreenButton);
 
     container.append(loadingIndicator, canvasWrapper, nav);
-    if (!document.getElementsByClassName("xpdf-overlay")[0]) {
-      document.body.appendChild(overlay);
-    }
     embedElement.parentNode.replaceChild(container, embedElement);
 
     let pdfDoc = null;
@@ -280,7 +281,7 @@
       const triggerResizeWithDelay = () => {
         setTimeout(() => {
           window.dispatchEvent(new Event("resize"));
-        }, 100);
+        }, 300);
       };
 
       if (isIPhone || !isApiSupported) {
@@ -290,7 +291,6 @@
           overlay.appendChild(container);
           container.classList.add("xpdf-pseudo-fullscreen");
           fullscreenButton.innerHTML = fullscreenExitIcon;
-          // window.dispatchEvent(new Event("resize"));
           triggerResizeWithDelay();
         } else {
           if (originalParent && document.body.contains(originalParent)) {
@@ -304,7 +304,6 @@
           overlay.style.display = "none";
           container.classList.remove("xpdf-pseudo-fullscreen");
           fullscreenButton.innerHTML = fullscreenEnterIcon;
-          // window.dispatchEvent(new Event("resize"));
           triggerResizeWithDelay();
         }
       } else {
